@@ -3,7 +3,7 @@
 #pragma once
 
 //#include "PsReplayKitPrivatePCH.h"
-#include "ModuleManager.h"
+#include "Modules/ModuleManager.h"
 #include "PsReplayKitClasses.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogReplayKit, Display, All);

@@ -19,6 +19,6 @@
 	#include "IOS/PsReplayKitDelegate.h"
 #endif
 
-#include "ModuleManager.h"
+#include "Modules/ModuleManager.h"
 #include "PsReplayKitClasses.h"
 #include "PsReplayKit.h"
