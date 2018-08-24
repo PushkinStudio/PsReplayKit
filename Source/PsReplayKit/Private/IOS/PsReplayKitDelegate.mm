@@ -26,47 +26,42 @@ using namespace std;
 
 - (void)StartRecording
 {
-	RPScreenRecorder *sharedRecorder = RPScreenRecorder.sharedRecorder;
-	if (sharedRecorder) {
-		sharedRecorder.delegate = self;
-		if ([sharedRecorder respondsToSelector:@selector(startRecordingWithHandler:)]) {
-			// iOS 10+
-			[sharedRecorder startRecordingWithHandler:^(NSError *error) {
-				if (error) {
-					NSLog(@"startScreenRecording: %@", error.localizedDescription);
-				}
-			}];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		RPScreenRecorder *sharedRecorder = RPScreenRecorder.sharedRecorder;
+		if (sharedRecorder) {
+			sharedRecorder.delegate = self;
+			if ([sharedRecorder respondsToSelector:@selector(startRecordingWithHandler:)]) {
+				// iOS 10+
+				[sharedRecorder startRecordingWithHandler:^(NSError *error) {
+					if (error) {
+						NSLog(@"startScreenRecording: %@", error.localizedDescription);
+					}
+				}];
+			}
 		}
-		else
-		{
-			// pre-iOS 10
-			[sharedRecorder startRecordingWithMicrophoneEnabled:YES handler:^(NSError *error) {
-				if (error) {
-					NSLog(@"startScreenRecording: %@", error.localizedDescription);
-				}
-			}];
-		}
-	}
+	});
 }
 
 - (void)StopRecording
 {
-	RPScreenRecorder *sharedRecorder = RPScreenRecorder.sharedRecorder;
-	if (sharedRecorder) {
-		[sharedRecorder stopRecordingWithHandler:^(RPPreviewViewController *previewViewController, NSError *error) {
-			if (error) {
-				NSLog(@"stopScreenRecording: %@", error.localizedDescription);
-			}
+	dispatch_async(dispatch_get_main_queue(), ^{
+		RPScreenRecorder *sharedRecorder = RPScreenRecorder.sharedRecorder;
+		if (sharedRecorder) {
+			[sharedRecorder stopRecordingWithHandler:^(RPPreviewViewController *previewViewController, NSError *error) {
+				if (error) {
+					NSLog(@"stopScreenRecording: %@", error.localizedDescription);
+				}
 
-			if (previewViewController) {
-				previewViewController.previewControllerDelegate = self;
+				if (previewViewController) {
+					previewViewController.previewControllerDelegate = self;
 
-				previewViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+					previewViewController.modalPresentationStyle = UIModalPresentationFullScreen;
 
-				[[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:previewViewController animated:YES completion:nil];
-			}
-		}];
-	}
+					[[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:previewViewController animated:YES completion:nil];
+				}
+			}];
+		}
+	});
 }
 
 - (bool)IsAvailable
@@ -111,72 +106,82 @@ using namespace std;
 
 - (void)previewControllerDidFinish:(RPPreviewViewController *)previewController
 {
-	NSLog(@"previewControllerDidFinish");
-	[previewController dismissViewControllerAnimated:YES completion:nil];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSLog(@"previewControllerDidFinish");
+		[previewController dismissViewControllerAnimated:YES completion:nil];
+	});
 }
 
 - (void)previewController:(RPPreviewViewController *)previewController didFinishWithActivityTypes:(NSSet<NSString *> *)activityTypes
 {
-	NSLog(@"previewController: didFinishWithActivityTypes:");
-	[previewController dismissViewControllerAnimated:YES completion:nil];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSLog(@"previewController: didFinishWithActivityTypes:");
+		[previewController dismissViewControllerAnimated:YES completion:nil];
+	});
 }
 
 /** Streaming*/
 
 - (void)StartStreaming
 {
-	if (streamController == nil) {
-		if ([RPBroadcastActivityViewController class]) {
-			[RPBroadcastActivityViewController loadBroadcastActivityViewControllerWithHandler:^(RPBroadcastActivityViewController* _Nullable broadcastActivityViewController, NSError* _Nullable error) {
+	dispatch_async(dispatch_get_main_queue(), ^{
+		if (streamController == nil) {
+			if ([RPBroadcastActivityViewController class]) {
+				[RPBroadcastActivityViewController loadBroadcastActivityViewControllerWithHandler:^(RPBroadcastActivityViewController* _Nullable broadcastActivityViewController, NSError* _Nullable error) {
 
-				if ([UIApplication sharedApplication].keyWindow && [UIApplication sharedApplication].keyWindow.rootViewController)
-				{
-					UIView* rootView = [UIApplication sharedApplication].keyWindow.rootViewController.view;
-					if (rootView)
+					if ([UIApplication sharedApplication].keyWindow && [UIApplication sharedApplication].keyWindow.rootViewController)
 					{
-						broadcastActivityViewController.delegate = self;
-						broadcastActivityViewController.modalPresentationStyle = UIModalPresentationPopover;
-						broadcastActivityViewController.popoverPresentationController.sourceView = rootView;
-						broadcastActivityViewController.popoverPresentationController.sourceRect = rootView.frame;
+						UIView* rootView = [UIApplication sharedApplication].keyWindow.rootViewController.view;
+						if (rootView)
+						{
+							broadcastActivityViewController.delegate = self;
+							broadcastActivityViewController.modalPresentationStyle = UIModalPresentationPopover;
+							broadcastActivityViewController.popoverPresentationController.sourceView = rootView;
+							broadcastActivityViewController.popoverPresentationController.sourceRect = rootView.frame;
 
-						[[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:broadcastActivityViewController animated:YES completion:nil];
+							[[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:broadcastActivityViewController animated:YES completion:nil];
+						}
 					}
-				}
-			}];
+				}];
+			}
 		}
-	}
+	});
 }
 
 
 - (void)StopStreaming
 {
-	if (streamController && streamController.broadcasting) {
-		[streamController finishBroadcastWithHandler:^(NSError * _Nullable error) {
-			if(error) {
-				NSLog(@"PsReplayKit: %@", [error localizedDescription]);
-			}
-			NSLog(@"PsReplayKit: finishBroadcastWithHandler");
-		}];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		if (streamController && streamController.broadcasting) {
+			[streamController finishBroadcastWithHandler:^(NSError * _Nullable error) {
+				if(error) {
+					NSLog(@"PsReplayKit: %@", [error localizedDescription]);
+				}
+				NSLog(@"PsReplayKit: finishBroadcastWithHandler");
+			}];
 
-		streamController = nil;
-	}
+			streamController = nil;
+		}
+	});
 }
 
 - (void)broadcastActivityViewController:(RPBroadcastActivityViewController *)broadcastActivityViewController didFinishWithBroadcastController:(nullable RPBroadcastController *)broadcastController error:(nullable NSError *)error
 {
-	[broadcastActivityViewController dismissViewControllerAnimated:YES completion:^() {
-		 NSLog(@"PsReplayKit: broadcastActivityViewController dismissViewControllerAnimated");
-	}];
-	if (broadcastController) {
-		streamController = broadcastController;
-		streamController.delegate = self;
-		[streamController startBroadcastWithHandler:^(NSError * _Nullable errorBroadcast) {
-			 if (errorBroadcast) {
-				 NSLog(@"PsReplayKit: %@", [errorBroadcast localizedDescription]);
-			 }
-			 NSLog(@"PsReplayKit: startBroadcastWithHandler");
-		 }];
-	}
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[broadcastActivityViewController dismissViewControllerAnimated:YES completion:^() {
+			 NSLog(@"PsReplayKit: broadcastActivityViewController dismissViewControllerAnimated");
+		}];
+		if (broadcastController) {
+			streamController = broadcastController;
+			streamController.delegate = self;
+			[streamController startBroadcastWithHandler:^(NSError * _Nullable errorBroadcast) {
+				 if (errorBroadcast) {
+					 NSLog(@"PsReplayKit: %@", [errorBroadcast localizedDescription]);
+				 }
+				 NSLog(@"PsReplayKit: startBroadcastWithHandler");
+			 }];
+		}
+	});
 }
 
 - (void)broadcastController:(RPBroadcastController *)broadcastController didFinishWithError:(NSError *)error

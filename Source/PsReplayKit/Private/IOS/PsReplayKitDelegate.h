@@ -25,7 +25,6 @@
 - (bool)IsRecording;
 
 // RPScreenRecorderDelegate
-- (void)screenRecorder:(RPScreenRecorder *)screenRecorder didStopRecordingWithError:(NSError *)error previewViewController:(RPPreviewViewController *)previewViewController;
 - (void)screenRecorder:(RPScreenRecorder *)screenRecorder didStopRecordingWithPreviewViewController:(RPPreviewViewController *)previewViewController error:(NSError *)error;
 - (void)screenRecorderDidChangeAvailability:(RPScreenRecorder *)screenRecorder;
 
