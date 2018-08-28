@@ -14,6 +14,12 @@ public class PsReplayKit : ModuleRules
 		bAvailable = Target.Platform == UnrealTargetPlatform.IOS;
 
 		PublicDefinitions.Add("WITH_REPLAYKIT=" + (bCompileReplayKit && bAvailable ? "1" : "0"));
+
+		PublicIncludePaths.AddRange(
+			new string[] {
+				// ... add public include paths required here ...
+			}
+			);
 				
 		
 		PrivateIncludePaths.AddRange(
