@@ -29,6 +29,11 @@ using namespace std;
 	dispatch_async(dispatch_get_main_queue(), ^{
 		RPScreenRecorder *sharedRecorder = RPScreenRecorder.sharedRecorder;
 		if (sharedRecorder) {
+			if (sharedRecorder.recording)
+			{
+				return;
+			}
+
 			sharedRecorder.delegate = self;
 			if ([sharedRecorder respondsToSelector:@selector(startRecordingWithHandler:)]) {
 				// iOS 10+
@@ -47,6 +52,11 @@ using namespace std;
 	dispatch_async(dispatch_get_main_queue(), ^{
 		RPScreenRecorder *sharedRecorder = RPScreenRecorder.sharedRecorder;
 		if (sharedRecorder) {
+			if (!sharedRecorder.recording)
+			{
+				return;
+			}
+
 			[sharedRecorder stopRecordingWithHandler:^(RPPreviewViewController *previewViewController, NSError *error) {
 				if (error) {
 					NSLog(@"stopScreenRecording: %@", error.localizedDescription);
